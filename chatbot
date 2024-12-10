@@ -1,0 +1,87 @@
+import os
+from google.generativeai import content
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Your Gemini API key
+API_KEY = os.getenv("API_KEY")
+
+# Initialize Gemini AI
+content.api_key = API_KEY
+
+# Function to get a response from Gemini AI model
+def get_gemini_response(prompt):
+    try:
+        response = content.generate_text(
+            prompt=prompt,
+            temperature=0.7,  # Controls randomness of the output (0 to 1)
+            max_output_tokens=250  # Limit the length of the response
+        )
+        return response.text.strip()
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+# Enhanced prompt design for President University chatbot
+def get_customer_service_prompt(user_message):
+    # Add specific instructions for the chatbot's behavior and tone
+    prompt = f"""
+    You are an AI customer service agent for President University. Your job is to provide helpful, polite, and clear responses to students, prospective students, and parents. You provide information about the university’s programs, admissions, scholarships, campus facilities, and general university life. 
+
+    Your responses should always be in a friendly, professional tone, and you should ensure the information is accurate. You should also avoid providing any personal opinions and direct the user to the appropriate department if needed.
+
+    If the user asks about courses or programs, provide a brief overview of the programs available at President University, including the names of the faculties, and mention where they can find more detailed information on the official website. 
+
+    The conversation should remain student-centered, offering value to the user. Always finish with a friendly, welcoming line like "Feel free to ask if you have more questions!"
+
+    User Message: "{user_message}"
+    Response:
+    """
+    return prompt
+
+# Simulated chatbot conversation function
+def chatbot_conversation():
+    print("Welcome to the President University AI Chatbot!")
+    print("How can I assist you today? (Type 'exit' to end the conversation)\n")
+    
+    while True:
+        # Get user input
+        user_input = input("You: ")
+        
+        # Exit condition
+        if user_input.lower() == 'exit':
+            print("Goodbye! Have a wonderful day at President University!")
+            break
+        
+        # Prepare prompt for the AI
+        prompt = get_customer_service_prompt(user_input)
+        
+        # Get response from Gemini AI
+        response = get_gemini_response(prompt)
+        print(f"PU Bot: {response}\n")
+
+# Example queries for testing the chatbot
+def test_chatbot():
+    example_queries = [
+        "What programs does President University offer?",
+        "How can I apply for a scholarship?",
+        "Tell me about the campus facilities.",
+        "What are the admission requirements for international students?",
+        "Can you recommend some courses for business students?",
+        "What is the university’s policy on student housing?"
+    ]
+    
+    print("Testing the PU Chatbot...\n")
+    
+    for query in example_queries:
+        print(f"You: {query}")
+        prompt = get_customer_service_prompt(query)
+        response = get_gemini_response(prompt)
+        print(f"PU Bot: {response}\n")
+        
+# Start the chatbot conversation
+chatbot_conversation()
+
+# Optionally, test the chatbot with predefined queries
+test_chatbot()
